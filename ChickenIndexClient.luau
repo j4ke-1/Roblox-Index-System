@@ -68,17 +68,18 @@ mainCorner.CornerRadius = UDim.new(0, 16)
 mainCorner.Parent = mainFrame
 
 local mainStroke = Instance.new("UIStroke")
-mainStroke.Color = Color3.fromRGB(90, 60, 160)
-mainStroke.Thickness = 2
+mainStroke.Color = Color3.fromRGB(180, 120, 60)
+mainStroke.Thickness = 2.5
+mainStroke.Transparency = 0.15
 mainStroke.Parent = mainFrame
 
 local header = Instance.new("Frame")
 header.Size = UDim2.new(1, 0, 0, 78)
-header.BackgroundColor3 = Color3.fromRGB(70, 45, 130)
+header.BackgroundColor3 = Color3.fromRGB(120, 70, 30)
 header.Parent = mainFrame
 
 local headerGradient = Instance.new("UIGradient")
-headerGradient.Color = ColorSequence.new(Color3.fromRGB(110, 75, 200), Color3.fromRGB(55, 35, 110))
+headerGradient.Color = ColorSequence.new(Color3.fromRGB(175, 115, 55), Color3.fromRGB(95, 55, 25))
 headerGradient.Rotation = 90
 headerGradient.Parent = header
 
@@ -238,36 +239,51 @@ local function buildRaritySection(rarity, entries, layoutOrder)
 	grid.Parent = section
 
 	local gridLayout = Instance.new("UIGridLayout")
-	gridLayout.CellSize = UDim2.fromOffset(96, 100)
+	gridLayout.CellSize = UDim2.fromOffset(100, 108)
 	gridLayout.CellPadding = UDim2.fromOffset(8, 8)
 	gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	gridLayout.Parent = grid
 
 	for i, entry in ipairs(entries) do
+		
+		local shadow = Instance.new("Frame")
+		shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		shadow.BackgroundTransparency = 0.6
+		shadow.LayoutOrder = i
+		shadow.Parent = grid
+
+		local shadowCorner = Instance.new("UICorner")
+		shadowCorner.CornerRadius = UDim.new(0, 12)
+		shadowCorner.Parent = shadow
+
 		local card = Instance.new("Frame")
 		card.Name = entry.Name
-		card.BackgroundColor3 = Color3.fromRGB(40, 38, 48)
-		card.LayoutOrder = i
-		card.Parent = grid
+		card.Size = UDim2.new(1, 0, 1, 0)
+		card.Position = UDim2.fromOffset(0, -4)
+		card.BackgroundColor3 = Color3.fromRGB(42, 40, 52)
+		card.Parent = shadow
 
 		local cardCorner = Instance.new("UICorner")
-		cardCorner.CornerRadius = UDim.new(0, 10)
+		cardCorner.CornerRadius = UDim.new(0, 12)
 		cardCorner.Parent = card
+
+		local cardGradient = Instance.new("UIGradient")
+		cardGradient.Color = ColorSequence.new(Color3.fromRGB(52, 50, 64), Color3.fromRGB(34, 32, 42))
+		cardGradient.Rotation = 90
+		cardGradient.Parent = card
 
 		local cardStroke = Instance.new("UIStroke")
 		cardStroke.Color = color
-		cardStroke.Thickness = 1.5
-		cardStroke.Transparency = 0.5
+		cardStroke.Thickness = 2
+		cardStroke.Transparency = 0.35
 		cardStroke.Parent = card
 
-		-- Icon: a ViewportFrame renders the chicken's REAL 3D model once
-		-- discovered. Stays as a plain colored circle with a "?" while
-		-- locked, so discovering it feels like a reveal.
+		
 		local icon = Instance.new("Frame")
-		icon.Size = UDim2.fromOffset(56, 56)
-		icon.Position = UDim2.new(0.5, 0, 0, 8)
+		icon.Size = UDim2.fromOffset(60, 60)
+		icon.Position = UDim2.new(0.5, 0, 0, 10)
 		icon.AnchorPoint = Vector2.new(0.5, 0)
-		icon.BackgroundColor3 = color
+		icon.BackgroundColor3 = Color3.fromRGB(20, 19, 26)
 		icon.ClipsDescendants = true
 		icon.Parent = card
 
@@ -275,22 +291,19 @@ local function buildRaritySection(rarity, entries, layoutOrder)
 		iconCorner.CornerRadius = UDim.new(1, 0)
 		iconCorner.Parent = icon
 
+		local iconRing = Instance.new("UIStroke")
+		iconRing.Color = color
+		iconRing.Thickness = 1.5
+		iconRing.Transparency = 0.4
+		iconRing.Parent = icon
+
 		local viewport = Instance.new("ViewportFrame")
 		viewport.Name = "ModelViewport"
 		viewport.Size = UDim2.fromScale(1, 1)
 		viewport.BackgroundTransparency = 1
-		viewport.Visible = false
+		viewport.Ambient = Color3.fromRGB(140, 140, 140)
+		viewport.LightColor = Color3.fromRGB(255, 255, 255)
 		viewport.Parent = icon
-
-		local lockLabel = Instance.new("TextLabel")
-		lockLabel.Name = "LockLabel"
-		lockLabel.Size = UDim2.fromScale(1, 1)
-		lockLabel.BackgroundTransparency = 1
-		lockLabel.Text = "?"
-		lockLabel.TextColor3 = Color3.fromRGB(20, 20, 25)
-		lockLabel.Font = Enum.Font.GothamBold
-		lockLabel.TextScaled = true
-		lockLabel.Parent = icon
 
 		local checkmark = Instance.new("TextLabel")
 		checkmark.Name = "Checkmark"
@@ -303,6 +316,7 @@ local function buildRaritySection(rarity, entries, layoutOrder)
 		checkmark.Font = Enum.Font.GothamBold
 		checkmark.TextSize = 13
 		checkmark.Visible = false
+		checkmark.ZIndex = 3
 		checkmark.Parent = card
 
 		local checkmarkCorner = Instance.new("UICorner")
@@ -320,14 +334,15 @@ local function buildRaritySection(rarity, entries, layoutOrder)
 		nameLabel.TextWrapped = true
 		nameLabel.Font = Enum.Font.GothamBold
 		nameLabel.TextSize = 12
+		nameLabel.TextStrokeTransparency = 0.6
 		nameLabel.Parent = card
 
 		cardsByName[entry.Name] = {
+			shadow = shadow,
 			card = card,
 			icon = icon,
 			viewport = viewport,
 			modelLoaded = false,
-			lockLabel = lockLabel,
 			checkmark = checkmark,
 			nameLabel = nameLabel,
 			displayName = entry.DisplayName,
@@ -345,16 +360,68 @@ end
 
 local chickenIcons = ReplicatedStorage:WaitForChild("ChickenIcons", 10)
 
+
+local CAMERA_DISTANCE_OVERRIDES = {
+	["Exalted Chicken"] = 0.7,
+}
+
+
 local function frameCameraOnModel(camera, model)
 	local cframe, size = model:GetBoundingBox()
-	local maxExtent = math.max(size.X, size.Y, size.Z)
-	local distance = maxExtent * 2.2
-	local offset = Vector3.new(1, 0.6, 1).Unit * distance
+	local diagonal = size.Magnitude
+	local overrideMultiplier = CAMERA_DISTANCE_OVERRIDES[model.Name] or 1
+	
+	local distance = math.max(diagonal * 1.15 * overrideMultiplier, 2)
+	local offset = Vector3.new(1, 0.75, 1).Unit * distance
 	camera.CFrame = CFrame.lookAt(cframe.Position + offset, cframe.Position)
-	camera.FieldOfView = 50
+	camera.FieldOfView = 45
 end
 
-local function loadModelIcon(ui, chickenName)
+local hiddenAppearanceStorage = Instance.new("Folder")
+hiddenAppearanceStorage.Name = "HiddenSurfaceAppearances"
+hiddenAppearanceStorage.Parent = ReplicatedStorage
+
+local function setSilhouette(model, silhouette)
+	for _, part in ipairs(model:GetDescendants()) do
+		if part:IsA("BasePart") then
+			if silhouette then
+				if part:GetAttribute("OriginalColor") == nil then
+					part:SetAttribute("OriginalColor", part.Color)
+					part:SetAttribute("OriginalMaterial", part.Material.Name)
+				end
+				part.Color = Color3.new(0, 0, 0)
+				part.Material = Enum.Material.SmoothPlastic
+			else
+				local originalColor = part:GetAttribute("OriginalColor")
+				local originalMaterialName = part:GetAttribute("OriginalMaterial")
+				if originalColor then
+					part.Color = originalColor
+				end
+				if originalMaterialName then
+					part.Material = Enum.Material[originalMaterialName]
+				end
+			end
+		elseif part:IsA("SurfaceAppearance") then
+			if silhouette then
+				part.Parent = hiddenAppearanceStorage -- pull it out entirely, its mere presence overrides Color
+			end
+		elseif part:IsA("Decal") or part:IsA("Texture") then
+			if silhouette then
+				if part:GetAttribute("OriginalTransparency") == nil then
+					part:SetAttribute("OriginalTransparency", part.Transparency)
+				end
+				part.Transparency = 1
+			else
+				local originalTransparency = part:GetAttribute("OriginalTransparency")
+				if originalTransparency then
+					part.Transparency = originalTransparency
+				end
+			end
+		end
+	end
+end
+
+local function loadModelIcon(ui, chickenName, discovered)
 	if ui.modelLoaded or not chickenIcons then
 		return
 	end
@@ -365,6 +432,8 @@ local function loadModelIcon(ui, chickenName)
 
 	local model = template:Clone()
 	model.Parent = ui.viewport
+	setSilhouette(model, not discovered)
+	ui.model = model
 
 	local camera = Instance.new("Camera")
 	camera.Parent = ui.viewport
@@ -380,26 +449,20 @@ local function refreshCard(name)
 		return
 	end
 	local discovered = state.discovered[name] == true
+	loadModelIcon(ui, name, discovered) -- always loaded, regardless of discovery state
 
 	if discovered then
-		loadModelIcon(ui, name)
-		ui.viewport.Visible = ui.modelLoaded
-		ui.lockLabel.Visible = not ui.modelLoaded
 		ui.checkmark.Visible = true
 		ui.nameLabel.Text = ui.displayName
 		ui.nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-		ui.card.BackgroundColor3 = Color3.fromRGB(50, 48, 62)
-		if not ui.modelLoaded then
-			ui.icon.BackgroundColor3 = ui.color
+		ui.card.BackgroundTransparency = 0
+		if ui.model then
+			setSilhouette(ui.model, false) -- reveal true colors
 		end
 	else
-		ui.viewport.Visible = false
-		ui.lockLabel.Visible = true
 		ui.checkmark.Visible = false
 		ui.nameLabel.Text = "???"
 		ui.nameLabel.TextColor3 = Color3.fromRGB(120, 120, 125)
-		ui.card.BackgroundColor3 = Color3.fromRGB(40, 38, 48)
-		ui.icon.BackgroundColor3 = Color3.fromRGB(60, 58, 68)
 	end
 end
 
@@ -493,19 +556,55 @@ local function showToast(text, accentColor, big)
 	end)
 end
 
+local closePanelsEvent = ReplicatedStorage:FindFirstChild("ClosePanelsExcept")
+if not closePanelsEvent then
+	closePanelsEvent = Instance.new("BindableEvent")
+	closePanelsEvent.Name = "ClosePanelsExcept"
+	closePanelsEvent.Parent = ReplicatedStorage
+end
+
+local restingPosition = mainFrame.Position
+local hiddenPosition = restingPosition + UDim2.fromOffset(0, 40)
 
 local isOpen = false
 
 local function setOpen(open)
 	isOpen = open
-	mainFrame.Visible = open
+	if open then
+		mainFrame.Position = hiddenPosition
+		mainFrame.Visible = true
+		TweenService:Create(mainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Position = restingPosition,
+		}):Play()
+	else
+		local closeTween = TweenService:Create(mainFrame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			Position = hiddenPosition,
+		})
+		closeTween:Play()
+		closeTween.Completed:Connect(function()
+			if not isOpen then
+				mainFrame.Visible = false
+				mainFrame.Position = restingPosition -- reset for next open/for OpenShop.lua's direct toggle
+			end
+		end)
+	end
 end
 
 toggleEvent.Event:Connect(function()
-	setOpen(not isOpen)
+	if isOpen then
+		setOpen(false)
+		return
+	end
+	closePanelsEvent:Fire("Index")
+	setOpen(true)
 end)
 closeButton.MouseButton1Click:Connect(function()
 	setOpen(false)
+end)
+closePanelsEvent.Event:Connect(function(openingId)
+	if openingId ~= "Index" and isOpen then
+		setOpen(false)
+	end
 end)
 
 local function playDiscoverySound()
